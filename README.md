@@ -23,3 +23,4 @@ Usage
 
 Sample resulting plot
 ---
+![image](https://user-images.githubusercontent.com/38035/77252804-40e1a500-6c4e-11ea-9e74-87ba73d098dc.png)
