@@ -40,7 +40,6 @@ def logistic_curve_fit(total_infected, actual_data):
         f,
         list(range(0, len(actual_data))),
         actual_data,
-        method='dogbox',
         bounds=([0.05, 0.3], [15.0, 50.0])
     )
     return popt
@@ -54,8 +53,10 @@ if __name__ == '__main__':
     input_data = read_csv(sys.argv[1])
     ydata_cumulative_actual = [x[1] for x in input_data if x[1] is not None]
     labels = [convert_date_string(x[0]) for x in input_data]
-    num_days_total = len(labels)
     num_days_actual = len(ydata_cumulative_actual)
+
+    # This controls the number of days included in the plot
+    num_days_total = len(labels)
 
     fig, ax = plt.subplots()
 
@@ -63,21 +64,19 @@ if __name__ == '__main__':
     xdata_day_counter = list(range(0, num_days_total))
 
     # Calculate and plot predictions
-    for (style, maxVal, label) in [
-        ('g--', 1000, '1000 total cases (covid.hi.is most probable)'),
-        ('b--', 2000, '2000 total cases (covid.hi.is worst case)'),
-        ('k--', 3000, '3000 total cases'),
-        ('k--', 4000, '4000 total cases'),
-        ('k--', 5000, '5000 total cases')
+    for (style, color, maxVal, label) in [
+        ('-', 'green', 2000, '2000 total cases (covid.hi.is most probable)'),
+        ('-', 'blue', 6000, '6000 total cases (covid.hi.is worst case)'),
+        ('--', 'grey', 4000, '4000 total cases'),
     ]:
         ax.plot(xdata_day_counter, fsigmoid(xdata_day_counter, maxVal, *logistic_curve_fit(maxVal, ydata_cumulative_actual)), style,
-                label=label)
+                label=label, color=color)
 
     # Plot actual numbers
     ax.plot(list(range(0, num_days_actual)), ydata_cumulative_actual, 'r-', label='Actual', marker='+', markersize=10)
 
     # Label every 5 days
-    plt.xticks(list(range(0, num_days_total, 5)), [labels[i] for i in range(0, num_days_total, 5)], rotation=90)
+    plt.xticks(list(range(0, num_days_total, 2)), [labels[i] for i in range(0, num_days_total, 2)], rotation=90)
 
     # Place legent at top
     ax.legend(loc='lower left', bbox_to_anchor=(0, 1), ncol=2)
