@@ -65,9 +65,9 @@ if __name__ == '__main__':
 
     # Calculate and plot predictions
     for (style, color, maxVal, label) in [
-        ('-', 'green', 2000, '2000 total cases (covid.hi.is most probable)'),
+        ('-', 'green', 2500, '2500 total cases (covid.hi.is most probable)'),
         ('-', 'blue', 6000, '6000 total cases (covid.hi.is worst case)'),
-        ('--', 'grey', 4000, '4000 total cases'),
+        ('--', 'grey', 4250, '4250 total cases'),
     ]:
         ax.plot(xdata_day_counter, fsigmoid(xdata_day_counter, maxVal, *logistic_curve_fit(maxVal, ydata_cumulative_actual)), style,
                 label=label, color=color)
