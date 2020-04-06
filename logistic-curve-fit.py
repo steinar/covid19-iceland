@@ -10,6 +10,10 @@ import numpy as np
 from scipy.optimize import curve_fit
 
 
+# Most probable/worst case from Covid.hi.is
+case_totals = [1700, 2250, 2800]
+colors = ["green", "gray", "blue"]
+
 def read_csv(filename):
     l = []
     with open(filename, 'r') as csvfile:
@@ -43,12 +47,14 @@ def logistic_curve_fit(total_infected, actual_data):
     def f(x, k, x0):
         return fsigmoid(x, total_infected, k, x0)
 
-    popt, _ = curve_fit(
+    popt, pcov = curve_fit(
         f,
         list(range(0, len(actual_data))),
         actual_data,
         bounds=([0.05, 0.3], [15.0, 50.0])
     )
+
+    print("STD error for %s: %s" % (total_infected, np.sqrt(np.diag(pcov))))
     return popt
 
 
@@ -56,9 +62,8 @@ def convert_date_string(s):
     return datetime.datetime.strptime(s, "%Y-%m-%d").strftime("%d.%m")
 
 
-def plot_graph(ax, totalCases, ydata_predictions, ydata_actual, show_legend=False):
+def plot_graph(ax, totalCases, ydata_predictions, ydata_actual, colors, show_legend=False):
     # Calculate and plot predictions
-    colors = ["green", "grey", "blue"]
 
     for (maxVal, ydata, color) in zip(totalCases, ydata_predictions, colors):
         ax.plot(xdata_day_counter, ydata, label="%s total cases" % maxVal, color=color)
@@ -94,9 +99,6 @@ if __name__ == '__main__':
     # Day counter for logistic functions
     xdata_day_counter = list(range(0, num_days_total))
 
-    # Most probable/worst case from Covid.hi.is
-    case_totals = [1500, 1900, 2300]
-
     # Y-axis data for cumulative cases
     prediction_cumulative = [
         fsigmoid(xdata_day_counter, maxVal, *logistic_curve_fit(maxVal, ydata_cumulative_actual))
@@ -130,9 +132,9 @@ if __name__ == '__main__':
     plt.setp(ax, xticks=list(range(0, len(labels), 1)), xticklabels=[labels[i] for i in range(0, len(labels), 1)])
 
     # Plot cumulative cases
-    plot_graph(ax[0], case_totals, prediction_cumulative, ydata_cumulative_actual, True)
+    plot_graph(ax[0], case_totals, prediction_cumulative, ydata_cumulative_actual, colors, True)
 
     # Plot new cases
-    plot_graph(ax[1], case_totals, prediction_new, ydata_new_actual)
+    plot_graph(ax[1], case_totals, prediction_new, ydata_new_actual, colors)
 
     plt.show(block=True)
